@@ -1,7 +1,7 @@
 {- Render a `JSON` value as `Text` in either JSON or YAML format. -}
 
 let JSON =
-        ./core.dhall sha256:5dc1135d5481cfd6fde625aaed9fcbdb7aa7c14f2e76726aa5fdef028a5c10f5
+        ./core.dhall -- sha256:5dc1135d5481cfd6fde625aaed9fcbdb7aa7c14f2e76726aa5fdef028a5c10f5
       ? ./core.dhall
 
 let Function/identity =
@@ -234,7 +234,8 @@ let renderJSONStruct =
 let renderObject =
       λ(format : Format) →
       λ(fields : NonEmpty ObjectField) →
-        let keystr = λ(field : ObjectField) → "${Text/show field.mapKey}:"
+        -- let keystr = λ(field : ObjectField) → "${Text/show field.mapKey}:"
+        let keystr = λ(field : ObjectField) → "${field.mapKey}"
 
         let prefixKeyOnFirst =
               λ(field : ObjectField) →
@@ -311,127 +312,129 @@ let renderAs
               , bool =
                   λ(x : Bool) → Block.Simple (if x then "true" else "false")
               , null = Block.Simple "null"
+              , envValue = λ(x : Text) → Block.Simple x
+              -- , envValue = λ(x : Text) → Block.Simple (Text/show x)
               }
           )
 
-let example0 =
-      let data =
-            JSON.array
-              [ JSON.bool True
-              , JSON.string "Hello"
-              , JSON.object
-                  [ { mapKey = "foo", mapValue = JSON.null }
-                  , { mapKey = "bar", mapValue = JSON.double 1.0 }
-                  ]
-              ]
+-- let example0 =
+--       let data =
+--             JSON.array
+--               [ JSON.bool True
+--               , JSON.string "Hello"
+--               , JSON.object
+--                   [ { mapKey = "foo", mapValue = JSON.null }
+--                   , { mapKey = "bar", mapValue = JSON.double 1.0 }
+--                   ]
+--               ]
 
-      let yaml =
-              assert
-            :   renderAs Format.YAML data
-              ≡ ''
-                - true
-                - "Hello"
-                - "foo": null
-                  "bar": 1.0
-                ''
+--       let yaml =
+--               assert
+--             :   renderAs Format.YAML data
+--               ≡ ''
+--                 - true
+--                 - "Hello"
+--                 - "foo": null
+--                   "bar": 1.0
+--                 ''
 
-      let json =
-              assert
-            :   renderAs Format.JSON data
-              ≡ ''
-                [
-                  true,
-                  "Hello",
-                  {
-                    "foo": null,
-                    "bar": 1.0
-                  }
-                ]
-                ''
+--       let json =
+--               assert
+--             :   renderAs Format.JSON data
+--               ≡ ''
+--                 [
+--                   true,
+--                   "Hello",
+--                   {
+--                     "foo": null,
+--                     "bar": 1.0
+--                   }
+--                 ]
+--                 ''
 
-      in  True
+--       in  True
 
-let example1 =
-      let data =
-            JSON.object
-              [ { mapKey = "zero", mapValue = JSON.array ([] : List JSON.Type) }
-              , { mapKey = "one", mapValue = JSON.array [ JSON.string "a" ] }
-              , { mapKey = "two"
-                , mapValue = JSON.array [ JSON.string "a", JSON.string "b" ]
-                }
-              ]
+-- let example1 =
+--       let data =
+--             JSON.object
+--               [ { mapKey = "zero", mapValue = JSON.array ([] : List JSON.Type) }
+--               , { mapKey = "one", mapValue = JSON.array [ JSON.string "a" ] }
+--               , { mapKey = "two"
+--                 , mapValue = JSON.array [ JSON.string "a", JSON.string "b" ]
+--                 }
+--               ]
 
-      let yaml =
-              assert
-            :   renderAs Format.YAML data
-              ≡ ''
-                "zero": []
-                "one":
-                  - "a"
-                "two":
-                  - "a"
-                  - "b"
-                ''
+--       let yaml =
+--               assert
+--             :   renderAs Format.YAML data
+--               ≡ ''
+--                 "zero": []
+--                 "one":
+--                   - "a"
+--                 "two":
+--                   - "a"
+--                   - "b"
+--                 ''
 
-      let json =
-              assert
-            :   renderAs Format.JSON data
-              ≡ ''
-                {
-                  "zero": [],
-                  "one": [ "a" ],
-                  "two": [
-                    "a",
-                    "b"
-                  ]
-                }
-                ''
+--       let json =
+--               assert
+--             :   renderAs Format.JSON data
+--               ≡ ''
+--                 {
+--                   "zero": [],
+--                   "one": [ "a" ],
+--                   "two": [
+--                     "a",
+--                     "b"
+--                   ]
+--                 }
+--                 ''
 
-      in  True
+--       in  True
 
-let example2 =
-      let data =
-            JSON.object
-              [ { mapKey = "zero"
-                , mapValue =
-                    JSON.object
-                      (toMap {=} : List { mapKey : Text, mapValue : JSON.Type })
-                }
-              , { mapKey = "one"
-                , mapValue = JSON.object (toMap { a = JSON.null })
-                }
-              , { mapKey = "two"
-                , mapValue =
-                    JSON.object (toMap { a = JSON.null, b = JSON.null })
-                }
-              ]
+-- let example2 =
+--       let data =
+--             JSON.object
+--               [ { mapKey = "zero"
+--                 , mapValue =
+--                     JSON.object
+--                       (toMap {=} : List { mapKey : Text, mapValue : JSON.Type })
+--                 }
+--               , { mapKey = "one"
+--                 , mapValue = JSON.object (toMap { a = JSON.null })
+--                 }
+--               , { mapKey = "two"
+--                 , mapValue =
+--                     JSON.object (toMap { a = JSON.null, b = JSON.null })
+--                 }
+--               ]
 
-      let yaml =
-              assert
-            :   renderAs Format.YAML data
-              ≡ ''
-                "zero": {}
-                "one":
-                  "a": null
-                "two":
-                  "a": null
-                  "b": null
-                ''
+--       let yaml =
+--               assert
+--             :   renderAs Format.YAML data
+--               ≡ ''
+--                 "zero": {}
+--                 "one":
+--                   "a": null
+--                 "two":
+--                   "a": null
+--                   "b": null
+--                 ''
 
-      let json =
-              assert
-            :   renderAs Format.JSON data
-              ≡ ''
-                {
-                  "zero": {},
-                  "one": { "a": null },
-                  "two": {
-                    "a": null,
-                    "b": null
-                  }
-                }
-                ''
+--       let json =
+--               assert
+--             :   renderAs Format.JSON data
+--               ≡ ''
+--                 {
+--                   "zero": {},
+--                   "one": { "a": null },
+--                   "two": {
+--                     "a": null,
+--                     "b": null
+--                   }
+--                 }
+--                 ''
 
-      in  True
+--       in  True
 
 in  renderAs

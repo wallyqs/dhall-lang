@@ -5,11 +5,11 @@
 
 -}
 let JSON =
-        ./core.dhall sha256:5dc1135d5481cfd6fde625aaed9fcbdb7aa7c14f2e76726aa5fdef028a5c10f5
+        ./core.dhall -- sha256:5dc1135d5481cfd6fde625aaed9fcbdb7aa7c14f2e76726aa5fdef028a5c10f5
       ? ./core.dhall
 
 let renderAs =
-        ./renderAs sha256:f16238edec4c6dd846f19677c6675b27c579999dcff91db6193c10ade1d83174
+        ./renderAs -- sha256:f16238edec4c6dd846f19677c6675b27c579999dcff91db6193c10ade1d83174
       ? ./renderAs
 
 let Format =
@@ -20,30 +20,30 @@ let render
     : JSON.Type → Text
     = renderAs Format.JSON
 
-let example0 =
-      let data =
-              assert
-            :   render
-                  ( JSON.array
-                      [ JSON.bool True
-                      , JSON.string "Hello"
-                      , JSON.object
-                          [ { mapKey = "foo", mapValue = JSON.null }
-                          , { mapKey = "bar", mapValue = JSON.double 1.0 }
-                          ]
-                      ]
-                  )
-              ≡ ''
-                [
-                  true,
-                  "Hello",
-                  {
-                    "foo": null,
-                    "bar": 1.0
-                  }
-                ]
-                ''
+-- let example0 =
+--       let data =
+--               assert
+--             :   render
+--                   ( JSON.array
+--                       [ JSON.bool True
+--                       , JSON.string "Hello"
+--                       , JSON.object
+--                           [ { mapKey = "foo", mapValue = JSON.null }
+--                           , { mapKey = "bar", mapValue = JSON.double 1.0 }
+--                           ]
+--                       ]
+--                   )
+--               ≡ ''
+--                 [
+--                   true,
+--                   "Hello",
+--                   {
+--                     "foo": null,
+--                     "bar": 1.0
+--                   }
+--                 ]
+--                 ''
 
-      in  True
+--       in  True
 
 in  render
